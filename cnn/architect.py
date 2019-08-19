@@ -30,10 +30,8 @@ class Architect(object):
 
   def step(self, input_train, target_train, input_valid, target_valid, eta, network_optimizer, unrolled):
     self.optimizer.zero_grad()
-    # second-order approximation
     if unrolled:
         self._backward_step_unrolled(input_train, target_train, input_valid, target_valid, eta, network_optimizer)
-    # first-order approximation
     else:
         self._backward_step(input_valid, target_valid)
     self.optimizer.step()
