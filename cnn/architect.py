@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 from torch.autograd import Variable
-
+from IPython.core.debugger import set_trace
 
 def _concat(xs):
   return torch.cat([x.view(-1) for x in xs])

@@ -137,20 +137,21 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr):
     n = input.size(0)
 
     input = Variable(input, requires_grad=False).cuda()
-    target = Variable(target, requires_grad=False).cuda(async=True)
+    target = Variable(target, requires_grad=False).cuda()
 
     # get a random minibatch from the search queue with replacement
     input_search, target_search = next(iter(valid_queue))
     input_search = Variable(input_search, requires_grad=False).cuda()
-    target_search = Variable(target_search, requires_grad=False).cuda(async=True)
+    target_search = Variable(target_search, requires_grad=False).cuda()
 
-    architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled)
+    architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled) # step 1) update architecture alpha using L_val
 
     optimizer.zero_grad()
     logits = model(input)
     loss = criterion(logits, target)
 
-    loss.backward()
+    # step 2) update weights w using L_train
+    loss.backward() 
     nn.utils.clip_grad_norm(model.parameters(), args.grad_clip)
     optimizer.step()
 
@@ -174,7 +175,7 @@ def infer(valid_queue, model, criterion):
     with torch.no_grad():
         for step, (input, target) in enumerate(valid_queue):
             input = Variable(input).cuda()
-            target = Variable(target).cuda(async=True)
+            target = Variable(target).cuda()
 
             logits = model(input)
             loss = criterion(logits, target)
